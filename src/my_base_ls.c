@@ -46,7 +46,7 @@ void my_ls(ls_t *stc)
 
     fd = opendir(stc->tmp);
     if (fd == NULL)
-        return (print_error("errno"));
+        return (print_error("errno", stc->name, stc->tmp));
     tmp = malloc(sizeof(*tmp));
     tmp->data = NULL;
     tmp->next = NULL;

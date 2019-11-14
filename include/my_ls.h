@@ -8,6 +8,7 @@
 #ifndef MY_LS_H_
 #define MY_LS_H_
 
+#include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <sys/types.h>
@@ -18,8 +19,11 @@
 #include <time.h>
 #include <string.h>
 #include <stdlib.h>
+#include <errno.h>
 #include "my.h"
 #include "my_list.h"
+
+#define IS_FLAGS(c) (c == 'l' || c == 'R' || c == 'r' || c == 'd' || c == 't')
 
 typedef struct data_file_s {
     char *name;
@@ -34,7 +38,7 @@ typedef struct data_long_s {
 
 typedef struct ls_s
 {
-    char *file;
+    char *name;
     char *tmp;
     struct {
         char rec;
@@ -54,7 +58,7 @@ int my_cmp_data_long_time(data_long_t *, data_long_t *);
 data_file_t *my_make_data(ls_t *, char *);
 void my_ls_long_print(linked_list_t *);
 void ls_print_long_format(linked_list_t *, linked_list_t *);
-void print_error(char *);
+void print_error(char *, char *, char *);
 void my_ls_d(ls_t *);
 void my_ls_rec(ls_t *);
 

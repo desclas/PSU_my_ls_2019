@@ -31,23 +31,31 @@ static void add_long_format_info(struct stat stat, data_long_t *new)
     new->print = my_append_char(new->print, ' ');
 }
 
+static void add_date(char **date, size_t *count, char *tmp, data_long_t *new)
+{
+    my_memset(tmp, 0, 10);
+    for (; *(*date) != ' '; (*date)++);
+    for (*count = 0, *date = *date + 1; (*date)[*count] != ' '; (*count)++);
+    new->print = my_append_str(new->print,
+        my_strdup(my_strncat(tmp, *date, *count)));
+    new->print = my_append_char(new->print, ' ');
+    my_memset(tmp, 0, 10);
+    for (; *(*date) != ' '; (*date)++);
+    for (; *(*date) == ' '; (*date)++);
+    for (*count = 0; (*date)[*count] != ' '; (*count)++);
+    new->print = my_append_str(new->print,
+        my_strdup(my_strncat(tmp, *date, *count)));
+    new->print = my_append_char(new->print, ' ');
+    my_memset(tmp, 0, 10);
+}
+
 static void add_long_format_date(__time_t time, data_long_t *new)
 {
     char *date = ctime(&time);
     char *tmp = malloc(sizeof(char) * 10);
     size_t count;
-    my_memset(tmp, 0, 10);
-    for (; *date != ' '; date++);
-    for (count = 0, date = date + 1; date[count] != ' '; count++);
-    new->print = my_append_str(new->print, my_strdup(my_strncat(tmp, date, count)));
-    new->print = my_append_char(new->print, ' ');
-    my_memset(tmp, 0, 10);
-    for (; *date != ' '; date++);
-    for (; *date == ' '; date++);
-    for (count = 0; date[count] != ' '; count++);
-    new->print =my_append_str(new->print,my_strdup(my_strncat(tmp,date,count)));
-    new->print = my_append_char(new->print, ' ');
-    my_memset(tmp, 0, 10);
+
+    add_date(&date, &count, tmp, new);
     for (; *date != ' '; date++);
     for (; *date == ' '; date++);
     date++;
@@ -85,18 +93,6 @@ static data_long_t *add_long_format(data_file_t *data)
     return (new);
 }
 
-static void free_long(linked_list_t *data)
-{
-    for (linked_list_t *i = data->next; data != NULL; data = i) {
-        i = (data != NULL) ? data->next : NULL;
-        if (data->data != NULL) {
-            free(((data_long_t *)data->data)->print);
-            free(data->data);
-        }
-        free(data);
-    }
-}
-
 void my_ls_long_print(linked_list_t *tmp)
 {
     linked_list_t *long_format = malloc(sizeof(*long_format));
@@ -107,5 +103,12 @@ void my_ls_long_print(linked_list_t *tmp)
         if (i->data != NULL && ((data_file_t *)i->data)->name[0] != '.')
             my_add_at_end_list(&long_format, add_long_format((i->data)));
     ls_print_long_format(tmp, long_format);
-    free_long(long_format);
+    for (linked_list_t *i = long_format->next; long_format != NULL; long_format = i) {
+        i = (long_format != NULL) ? long_format->next : NULL;
+        if (long_format->data != NULL) {
+            free(((data_long_t *)long_format->data)->print);
+            free(long_format->data);
+        }
+        free(long_format);
+    }
 }

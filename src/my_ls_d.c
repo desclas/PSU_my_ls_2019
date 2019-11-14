@@ -13,7 +13,7 @@ void my_ls_d(ls_t *tmp)
 
     fd = opendir(tmp->tmp);
     if (fd == NULL) {
-        print_error("errno");
+        print_error("errno", tmp->name, tmp->tmp);
     }
     closedir(fd);
     my_putstr(tmp->tmp);

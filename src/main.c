@@ -9,21 +9,12 @@
 
 static void init_flags(ls_t *tmp)
 {
-    tmp->file = NULL;
-    tmp->tmp = NULL;
     tmp->flags.d = 0;
     tmp->flags.l = 0;
     tmp->flags.rec = 0;
     tmp->flags.rev = 0;
     tmp->flags.t = 0;
     tmp->cmp = &my_cmp_data_file;
-}
-
-static int is_flags(char c)
-{
-    if (c != 'l' && c != 'R' && c != 'r' && c != 'd' && c != 't')
-        return (-1);
-    return (0);
 }
 
 static int fill_flags(ls_t *tmp, char *flags)
@@ -33,7 +24,7 @@ static int fill_flags(ls_t *tmp, char *flags)
     if (flags[0] != '-')
         return (0);
     for (size_t i = 1; flags[i] != 0; i++) {
-        if (is_flags(flags[i]) == -1)
+        if (!IS_FLAGS(flags[i]))
             return (-1);
         if (flags[i] == 'l')
             tmp->flags.l = 1;
@@ -76,7 +67,7 @@ int main(int av, char **ac)
     ls_t tmp;
 
     init_flags(&tmp);
-    tmp.file = "./";
+    tmp.name = ac[0];
     tmp.tmp = "./";
     if (av == 1)
         my_ls(&tmp);
@@ -86,7 +77,6 @@ int main(int av, char **ac)
     for (int i = 1, x = 0; i < av; i++)
         if (ac[i][0] != '-') {
             x = 1;
-            tmp.file = ac[i];
             tmp.tmp = ac[i];
             my_choice(&tmp);
         } else if (i + 1 >= av && !x)
